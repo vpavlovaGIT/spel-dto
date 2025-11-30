@@ -1,6 +1,5 @@
 package ru.example.model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
