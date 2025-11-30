@@ -3,16 +3,39 @@ package ru.example.spel;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParserContext;
+import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
 public class SpelContext {
+
     private final ExpressionParser parser = new SpelExpressionParser();
+
+    /**
+     * Кастомный парсер
+     */
+    private static class CustomTemplateParserContext implements ParserContext {
+        @Override
+        public boolean isTemplate() {
+            return true;
+        }
+
+        @Override
+        public String getExpressionPrefix() {
+            return "${";
+        }
+
+        @Override
+        public String getExpressionSuffix() {
+            return "}";
+        }
+    }
+
+    private static final ParserContext DOLLAR_TEMPLATE = new CustomTemplateParserContext();
 
     public <T> T evaluateExpressionWithVariables(
             String expression,
@@ -36,14 +59,15 @@ public class SpelContext {
             Map<String, Object> variables,
             Class<T> resultType
     ) {
-        ParserContext pc = new TemplateParserContext("${", "}");
         StandardEvaluationContext context = new StandardEvaluationContext();
         context.setRootObject(rootObject);
         context.setVariable("root", rootObject);
+
         if (variables != null) {
             variables.forEach(context::setVariable);
         }
-        Expression exp = parser.parseExpression(expression, pc);
+
+        Expression exp = parser.parseExpression(expression, DOLLAR_TEMPLATE);
         return exp.getValue(context, resultType);
     }
 
