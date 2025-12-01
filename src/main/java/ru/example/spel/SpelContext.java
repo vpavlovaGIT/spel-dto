@@ -35,7 +35,7 @@ public class SpelContext {
         }
     }
 
-    private static final ParserContext DOLLAR_TEMPLATE = new CustomTemplateParserContext();
+    private static final ParserContext CUSTOM_TEMPLATE = new CustomTemplateParserContext();
 
     public <T> T evaluateExpressionWithVariables(
             String expression,
@@ -67,7 +67,7 @@ public class SpelContext {
             variables.forEach(context::setVariable);
         }
 
-        Expression exp = parser.parseExpression(expression, DOLLAR_TEMPLATE);
+        Expression exp = parser.parseExpression(expression, CUSTOM_TEMPLATE);
         return exp.getValue(context, resultType);
     }
 
